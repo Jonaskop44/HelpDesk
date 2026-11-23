@@ -40,4 +40,4 @@ RUN chmod +x ./wait-for-db.sh
 
 EXPOSE 4000
 
-CMD ["./wait-for-db.sh", "dokploy-access-control-db", "sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+CMD ["./wait-for-db.sh", "helpdesk-db", "sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
