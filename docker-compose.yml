@@ -1,0 +1,53 @@
+services:
+  helpdesk-web:
+    container_name: helpdesk-web
+    build:
+      context: web/
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
+    networks:
+      - proxy
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./web/.env
+    depends_on:
+      - helpdesk-server
+
+  helpdesk-server:
+    container_name: helpdesk-server
+    build:
+      context: server/
+      dockerfile: Dockerfile
+      target: prod
+    restart: unless-stopped
+    networks:
+      - proxy
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./server/.env
+    depends_on:
+      - helpdesk-db
+
+  helpdesk-db:
+    container_name: helpdesk-db
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    networks:
+      - proxy
+    env_file:
+      - "./server/.env"
+    volumes:
+      - helpdesk-db-data:/var/lib/postgresql
+
+volumes:
+  helpdesk-db-data:
+    driver: local
+
+networks:
+  proxy:
+    external: false

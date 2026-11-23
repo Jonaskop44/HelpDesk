@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+coverage
+*.log
+*.tsbuildinfo
+next-env.d.ts
+*.pem
+
+Dockerfile
+.dockerignore
