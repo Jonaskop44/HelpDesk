@@ -1,15 +1,19 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
 
-export function ApiQueryProvider({ children }: { children: React.ReactNode }) {
+interface ApiQueryProviderProps {
+  children: ReactNode;
+}
+
+const ApiQueryProvider = ({ children }: ApiQueryProviderProps) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: 60 * 1000, // 1 minute
           },
         },
       }),
@@ -18,4 +22,6 @@ export function ApiQueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-}
+};
+
+export default ApiQueryProvider;

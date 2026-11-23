@@ -19,6 +19,11 @@ export function createAuth({ prisma, config }: AuthDependencies) {
     database: prismaAdapter(prisma, { provider: 'postgresql' }),
     advanced: {
       cookiePrefix: 'helpdesk',
+
+      crossSubDomainCookies: {
+        enabled: config.isProduction,
+        domain: config.cookieDomain,
+      },
     },
     session: {
       expiresIn: 60 * 60 * 24 * 7, // 7 days

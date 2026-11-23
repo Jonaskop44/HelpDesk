@@ -22,5 +22,3 @@ export const customInstance = <T>(
 
   return promise;
 };
-
-export default customInstance;

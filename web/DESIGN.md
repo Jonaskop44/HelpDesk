@@ -322,6 +322,15 @@ Store and shop surfaces retain the same chassis but switch modes. The product co
 - **Divider Soft** (`{colors.divider-soft}` — #f0f0f0): The "border" tone on secondary buttons — functions as a ring shadow rather than a hard line. In production, often applied as `rgba(0, 0, 0, 0.04)`.
 - **Hairline** (`{colors.hairline}` — #e0e0e0): The 1px hairline border on store utility cards and configurator chips.
 
+### Status (HelpDesk addition)
+The analyzed pages don't show these. They were added because the app needs feedback colors for toasts, form errors and ticket states. As text on its own 8% tint, each one passes WCAG AA.
+
+- **Success**: `#1a7f37` (dark mode `#30d158`)
+- **Warning**: `#b25000` (dark mode `#ff9f0a`)
+- **Danger**: `#d70015` (dark mode `#ff7b72`)
+
+Hint and description text uses `#6e6e73` instead of `{colors.ink-muted-48}` (#7a7a7a), which reaches only 4.3:1 on white and 3.9:1 on parchment.
+
 ### Brand Gradient
 **No decorative gradients.** Atmospheric depth on product photography (the iPhone 17 Pro camera plate, the Apple Watch bands, AirPods reflections) is inherent to the imagery, not a CSS gradient overlay. The environment page's hero uses photographic atmosphere (mountain vista at dawn) but no gradient tokens are defined. Apple is the rare luxury-brand site with zero gradient-based design tokens.
 

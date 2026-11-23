@@ -71,7 +71,27 @@ Both apps name their script `openapi`. Run `npm run openapi` in `../server` firs
 - Own code uses Iconify string IDs (`<Icon icon="lucide:mail" />`), as `sonner.tsx` does. Generated shadcn components may import `lucide-react`.
 - `motion` handles animation, and `react-hook-form` + `zod` handle forms. `../CODING_STYLE.md` describes the form layering (schema → hook → form → card).
 
-**Design.** `DESIGN.md` is the design reference, with tokens in its YAML front matter and component rules in the prose. `src/app/globals.css` still holds the shadcn neutral defaults. `sonner.tsx` uses `--success`/`--warning` tokens and mentions a "Status" section in `DESIGN.md`, but neither those tokens nor that section exist yet. Colours in components come only from the theme tokens, never as raw values.
+**Design.** `DESIGN.md` is the design reference. Its tokens live in `src/app/globals.css`, with the DESIGN.md key in a comment next to each value. Use the tokens and never raw values in components:
+
+- **Colours:**
+  - shadcn semantics: `primary` = Action Blue, `foreground` = ink, `muted` = parchment, `secondary` = pearl
+  - extras: `link`, `success`, `warning`, `destructive`, `parchment`, `pearl`, `tile`/`tile-2`/`tile-3`, `chip`, `divider`
+  - `link` and `primary` differ in dark mode: Sky Link Blue for text, Action Blue for button fills.
+- **Type scale:** one utility per DESIGN.md typography key, each setting size, line height, tracking and weight: `text-hero-display`, `text-display-lg`, `text-display-md`, `text-lead`, `text-tagline`, `text-body` (17px, the body default), `text-body-strong`, `text-caption`, `text-button-utility`, `text-fine-print` and so on. Don't add `font-*`/`tracking-*` on top. Responsive headings step down as DESIGN.md describes, e.g. `text-display-md sm:text-display-lg lg:text-hero-display`.
+- **Font:** SF Pro on Apple devices via `-apple-system`, Inter (`next/font`, `--font-inter`) elsewhere. Geist Mono stays for monospace.
+- **Radii:** `rounded-xs` 5px, `rounded-sm` 8px (utility buttons), `rounded-md` 11px (pearl capsule), `rounded-lg` 18px (cards), `rounded-full` (pills). Don't mix in other radii.
+- **Elevation:** no shadows on UI. `shadow-product` is the only one, for product imagery. Depth comes from surface changes.
+- **Widths:** `max-w-text` (980px) and `max-w-page` (1440px).
+- **Buttons** (`src/components/ui/button.tsx`): the variants map to DESIGN.md buttons:
+  - `default` → button-primary
+  - `outline` → secondary pill
+  - `secondary` → pearl capsule
+  - `utility` → dark utility
+  - `link` → text-link
+
+  The default size is 44px tall, `icon` sizes are circular, and the press state is `scale-95`. Use `secondary`/`utility` with `size="sm"`.
+- **Additions:** status colours and the darker hint-text gray (`#6e6e73` instead of `#7a7a7a`, for WCAG AA) are not from the analyzed pages. They are documented in DESIGN.md → Status.
+- **Dark mode:** the `.dark` values are derived from DESIGN.md's dark tiles. Nothing toggles the `dark` class yet, and `sonner.tsx` is fixed to `theme="light"`.
 
 **Things that must stay in sync with `../server`:**
 

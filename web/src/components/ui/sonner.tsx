@@ -40,10 +40,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--warning-border":
             "color-mix(in srgb, var(--warning) 25%, var(--popover))",
           "--warning-text": "var(--warning)",
-          "--info-bg": "color-mix(in srgb, var(--primary) 8%, var(--popover))",
+          "--info-bg": "color-mix(in srgb, var(--link) 8%, var(--popover))",
           "--info-border":
-            "color-mix(in srgb, var(--primary) 25%, var(--popover))",
-          "--info-text": "var(--primary)",
+            "color-mix(in srgb, var(--link) 25%, var(--popover))",
+          "--info-text": "var(--link)",
         } as React.CSSProperties
       }
       toastOptions={{

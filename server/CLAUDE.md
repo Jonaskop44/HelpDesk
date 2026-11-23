@@ -46,21 +46,29 @@ npx prisma migrate dev --name <descriptive_name> # new migration + regenerate
 npm run better-auth:generate                     # regenerate schema.prisma from the Better Auth config
 ```
 
-`npm run prisma` hard-codes `--name init`, so use it only for the very first migration (there are none yet). Name later migrations after what they change, e.g. `add_user_fields`.
+Don't use `npm run prisma` any more. It hard-codes `--name init`, and that migration already exists. Name new migrations after what they change, e.g. `add_user_fields`. The Docker image applies them on start with `prisma migrate deploy`.
 
 ## Architecture
 
-**Bootstrap.** `src/main.ts` creates the app with `bodyParser: false`, which Better Auth needs. `@thallesp/nestjs-better-auth` adds JSON/urlencoded parsing back for every other route, so NestJS's own `rawBody` option has no effect; use the library's `bodyParser.rawBody` instead. The global prefix comes from `GLOBAL_PREFIX` (`api/v1`). Swagger UI is served at `/api/v1/api-docs`, with the JSON at `/api/v1/api-docs-json`. `src/generate-openapi.ts` repeats the prefix and `buildSwaggerDocument` setup, so keep the two files in step. No global `ValidationPipe` is registered yet.
+**Bootstrap.** `src/main.ts` creates the app with `bodyParser: false`, which Better Auth needs. `@thallesp/nestjs-better-auth` adds JSON/urlencoded parsing back for every other route, so NestJS's own `rawBody` option has no effect; use the library's `bodyParser.rawBody` instead. The global prefix comes from `GLOBAL_PREFIX` (`api/v1`). Swagger UI is served at `/api/v1/api-docs`, with the JSON at `/api/v1/api-docs-json`. `src/generate-openapi.ts` repeats the prefix and `buildSwaggerDocument` setup, so keep the two files in step.
+
+**Validation.** `AppModule` registers a global `ValidationPipe` as an `APP_PIPE` provider (not via `useGlobalPipes`, so testing modules built from `AppModule` get it too), with these options:
+
+- `whitelist`
+- `forbidNonWhitelisted`: unknown body fields are a 400, not silently dropped
+- `transform`: DTO instances; path/query params are converted to their declared types
+
+DTOs use class-validator decorators.
 
 **Configuration.** `ConfigModule.forRoot({ validate })` runs the class-validator schema in `src/config/env.validation.ts` at startup. Every variable is required (including `PORT`), so the app won't boot if any of them is missing or invalid. Read env only through `AppConfigService` getters. A new variable is added in three places, in the same comment group each time: the validator class, a getter, and `.env.example`. The `POSTGRES_*` keys in `.env.example` are not read by the app.
 
-**Infrastructure modules** live in `src/config/<name>/` and are `@Global()`, so you can inject `PrismaService` and `AppConfigService` anywhere without importing their modules. `PrismaService` extends the generated client and uses the `@prisma/adapter-pg` driver adapter. Prisma 7 has no `url` in `schema.prisma`: the CLI gets the URL from `prisma7.config.ts` and the runtime from the adapter. Import Prisma types from `src/config/prisma/generated/client.js`, not from `@prisma/client`.
+**Infrastructure modules** live in `src/config/<name>/` and are `@Global()`, so you can inject `PrismaService` and `AppConfigService` anywhere without importing their modules. `PrismaService` extends the generated client and uses the `@prisma/adapter-pg` driver adapter. Prisma 7 has no `url` in `schema.prisma`: the CLI gets the URL from `prisma7.config.ts`, and at runtime `PrismaService` passes `AppConfigService.databaseUrl` to the adapter. Import Prisma types from `src/config/prisma/generated/client.js`, not from `@prisma/client`.
 
 **Auth** is Better Auth. Don't add `@nestjs/authentication`, `@nestjs/authorization` or a second guard layer, even though the installed `nestjs-auth` skill recommends them.
 
 - `src/auth/auth.factory.ts` (`createAuth`) holds the only Better Auth config. `AuthModule` builds it via `BetterAuthModule.forRootAsync`, with `PrismaService` and `AppConfigService` injected.
 - `src/auth/auth.ts` is a stub instance with `{}` dependencies, only for the Better Auth CLI. Never import it at runtime.
-- Auth routes live under `/${GLOBAL_PREFIX}/auth/*`. Cookies use the prefix `helpdesk`, so the session cookie is `helpdesk.session_token`, which `swagger.config.ts` also names. `FRONTEND_URL` is the only trusted origin.
+- Auth routes live under `/${GLOBAL_PREFIX}/auth/*`. Cookies use the prefix `helpdesk`, so the session cookie is `helpdesk.session_token`, which `swagger.config.ts` also names. In production, `crossSubDomainCookies` sets the cookie for `DOMAIN` (`AppConfigService.cookieDomain`). `DOMAIN` therefore has to be the parent domain that both web and API run under. `FRONTEND_URL` is the only trusted origin.
 - Plugins: `admin` (roles `user`/`admin`; adds the `role`/`banned*` user columns and `impersonatedBy` on sessions) and `openAPI`.
 - `AuthModule` registers a global `AuthGuard`: every route requires a session unless it is marked `@AllowAnonymous()` or `@OptionalAuth()`. Get the session with `@Session()` and restrict by role with `@Roles([...])`. The module also enables CORS with credentials for `trustedOrigins`, so don't call `app.enableCors()` in `main.ts`.
 - `prisma/schema.prisma` mirrors the Better Auth config (`user`, `session`, `account`, `verification`). To change auth-related data (plugins, `user.additionalFields`), edit `createAuth`, then run `npm run better-auth:generate`, then a migration.

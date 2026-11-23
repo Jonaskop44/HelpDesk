@@ -142,7 +142,7 @@ camelCase, **Verb zuerst**. Das Verb sagt, was die Funktion tut:
 - Methoden nennen die Absicht: `sendPasswordResetEmail`, nicht `send(type, …)`. Generische Helfer bleiben `private`.
 - Getter sind Substantive bzw. Prädikate: `port`, `frontendUrl`, `mailFrom`, `isProduction`.
 - Ein Config-Getter heißt wie die Env-Variable in camelCase: `FRONTEND_URL` → `frontendUrl`.
-- Env-Variablen: UPPER*SNAKE, gruppiert über ein gemeinsames Präfix (`MAIL*_`, `POSTGRES\__`, `BETTER*AUTH*\*`), Einheit als Suffix (`\_MINUTES`).
+- Env-Variablen: `UPPER_SNAKE`, gruppiert über ein gemeinsames Präfix (`MAIL_*`, `POSTGRES_*`, `BETTER_AUTH_*`), Einheit als Suffix (`_MINUTES`).
 - Enum-Member in PascalCase mit kleingeschriebenem String-Wert: `Production = 'production'`.
 
 ### Bezeichner in Strings
@@ -302,16 +302,16 @@ export class AppConfigService {
 
   // Server Configuration
   get port(): number {
-    return this.configService.getOrThrow<number>("PORT");
+    return this.configService.getOrThrow<number>('PORT');
   }
 
   get domain(): string {
-    return this.configService.getOrThrow<string>("DOMAIN");
+    return this.configService.getOrThrow<string>('DOMAIN');
   }
 
   // Mail Configuration
   get mailHost(): string {
-    return this.configService.getOrThrow<string>("MAIL_HOST");
+    return this.configService.getOrThrow<string>('MAIL_HOST');
   }
 }
 ```
@@ -338,7 +338,7 @@ class EnvironmentVariables {
 
 ```ts
 return betterAuth({
-  appName: 'Code-Control',
+  appName: 'HelpDesk',
   baseURL: config.betterAuthUrl,
   secret: config.betterAuthSecret,
   session: {
@@ -571,7 +571,7 @@ const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
 - Ein Prüfergebnis bekommt erst einen Namen, dann folgt der Guard:
 
 ```ts
-const allowed = await canSendMail("verification-email", user.id);
+const allowed = await canSendMail('verification-email', user.id);
 if (!allowed) return;
 ```
 
